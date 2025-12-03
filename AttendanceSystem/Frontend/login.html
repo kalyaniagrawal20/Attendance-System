@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-container { border: 1px solid #ccc; padding: 30px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+        input { display: block; margin: 15px 0; padding: 10px; width: 100%; }
+        button { padding: 10px; width: 100%; background-color: #007bff; color: white; border: none; cursor: pointer;}
+        button:hover { background-color: #0056b3;}
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login</h2>
+    <form action="/login" method="POST">
+        <input type="email" name="email" required>
+        <input type="password" name="password" required>
+        <button type="submit">Login</button>
+    </form>
+
+</div>
+
+<!--<script>-->
+<!--    document.getElementById('loginForm').addEventListener('submit', async function(e){-->
+<!--        e.preventDefault();-->
+<!--        const email = document.getElementById('email').value;-->
+<!--        const password = document.getElementById('password').value;-->
+
+<!--        const res = await fetch('/login', {-->
+<!--            method: 'POST',-->
+<!--            headers: {'Content-Type': 'application/json'},-->
+<!--            body: JSON.stringify({ email, password })-->
+<!--        });-->
+
+<!--        const data = await res.json();-->
+
+<!--        if(data.success){-->
+<!--            if(data.role === 'admin'){-->
+<!--                window.location.href = '/adminDashboard';-->
+<!--            } else if(data.role === 'employee'){-->
+<!--                window.location.href = '/employeeDashboard';-->
+<!--            }-->
+<!--        } else {-->
+<!--            alert(data.message);-->
+<!--        }-->
+<!--    });-->
+<!--    document.getElementById("loginBtn").onclick = async function () {-->
+<!--    const email = document.getElementById("email").value;-->
+<!--    const password = document.getElementById("password").value;-->
+
+<!--    const res = await fetch("/login", {-->
+<!--        method: "POST",-->
+<!--        headers: { "Content-Type": "application/json" },-->
+<!--        body: JSON.stringify({ email, password })-->
+<!--    });-->
+
+<!--    const data = await res.json();-->
+
+<!--    if (data.success) {-->
+<!--        if (data.role === "Admin") window.location.href = "admin-dashboard.html";-->
+<!--        else window.location.href = "employee-dashboard.html";-->
+<!--    } else {-->
+<!--        alert("Invalid user!");-->
+<!--    }-->
+<!--};-->
+
+<!--</script>-->
+
+
+</body>
+</html>

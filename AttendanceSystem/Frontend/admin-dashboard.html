@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | Attendance System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            background-color: #333;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 60px;
+        }
+        nav a {
+            display: block;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            background-color: #575757;
+        }
+        main {
+            margin-left: 200px;
+            padding: 20px;
+        }
+        .dashboard-cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            flex: 1;
+            min-width: 200px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #attendanceList div { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        img { display: block; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Admin Dashboard</h1>
+</header>
+
+<nav>
+    <a href="#" onclick="showSection('dashboard')">Dashboard</a>
+    <a href="#" onclick="showSection('employees')">Manage Employees</a>
+    <a href="#" onclick="showSection('attendanceSection')">Attendance</a>
+<!--    <a href="#" onclick="showSection('reports')">Reports</a>-->
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<main>
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="section">
+        <h2>Overview</h2>
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3>Total Employees</h3>
+                <p id="totalEmployees">--</p>
+            </div>
+            <div class="card">
+                <h3>Present Today</h3>
+                <p id="presentToday">--</p>
+            </div>
+            <div class="card">
+                <h3>Absent Today</h3>
+                <p id="absentToday">--</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manage Employees Section -->
+    <section id="employees" class="section" style="display:none;">
+        <h2>Manage Employees</h2>
+        <button onclick="addEmployee()">Add New Employee</button>
+        <div id="employeeList">
+            <!-- Employee list will be rendered here -->
+
+        </div>
+    </section>
+
+    <!-- Attendance Section -->
+    <section id="attendanceSection" class="section" style="display:none;">
+
+        <h2>Attendance Records</h2>
+        <p>Daily and monthly attendance will be displayed here.</p>
+        <button onclick="showAttendance()">View Attendance</button>
+        <div id="attendanceList"></div>
+        <button onclick="showAttendanceSheet()">View Attendance Sheet</button>
+        <div id="attendanceSheet"></div>
+
+    </section>
+
+    <!-- Reports Section -->
+<!--    <section id="reports" class="section" style="display:none;">-->
+<!--        <h2>Reports</h2>-->
+<!--        <button onclick="downloadReport()">Download Report</button>-->
+<!--    </section>-->
+</main>
+
+<script>
+    function showAttendanceSheet() {
+    fetch('/admin/attendance-sheet')
+        .then(res => res.json())
+        .then(data => {
+            const sheetDiv = document.getElementById('attendanceSheet');
+            let html = '<table border="1"><tr><th>Name</th><th>Email</th><th>Status</th></tr>';
+            data.forEach(emp => {
+                html += `<tr><td>${emp.name}</td><td>${emp.email}</td><td>${emp.status}</td></tr>`;
+            });
+            html += '</table>';
+            sheetDiv.innerHTML = html;
+        });
+}
+    // Function to switch sections
+    function showSection(sectionId) {
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(sec => sec.style.display = 'none');
+        document.getElementById(sectionId).style.display = 'block';
+    }
+
+    // Placeholder functions
+    function addEmployee() {
+        alert('Redirect to Add Employee form');
+    }
+
+<!--    function downloadReport() {-->
+<!--        alert('Report will be downloaded');-->
+<!--    }-->
+
+    function logout() {
+        alert('Logged out successfully');
+        window.location.href = '/login.html';
+    }
+
+    // Sample dashboard data
+    document.getElementById('totalEmployees');
+    document.getElementById('presentToday');
+    document.getElementById('absentToday');
+
+
+function showAttendance() {
+    const list = document.getElementById("attendanceList");
+    const btn = document.querySelector('#attendanceSection button');
+
+    if (list.style.display === "block") {
+        list.style.display = "none";
+        btn.textContent = "View Attendance";
+    } else {
+        fetch('/admin/get-todays-attendance')
+            .then(res => res.json())
+            .then(data => {
+                list.innerHTML = "";
+
+                if (!data.length) {
+                    list.innerHTML = "<p>No attendance records today.</p>";
+                    return;
+                }
+
+                data.forEach(record => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <p><strong>${record.employeeName}</strong> (${record.employeeEmail})</p>
+                        <p>${new Date(record.date).toLocaleString()}</p>
+                        <img src="/uploads/${record.photo}" width="200">
+                        <hr>
+                    `;
+                    list.appendChild(div);
+                });
+
+                list.style.display = "block";
+                btn.textContent = "Close Attendance";
+            })
+            .catch(err => console.error("Error fetching attendance:", err));
+    }
+}
+
+    // Fetch dashboard data
+function loadDashboardData() {
+    fetch('/admin/dashboard-data')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('totalEmployees').textContent = data.totalEmployees;
+            document.getElementById('presentToday').textContent = data.presentToday;
+            document.getElementById('absentToday').textContent = data.absentToday;
+        })
+        .catch(err => console.error("Error loading dashboard data:", err));
+}
+
+// Call on page load
+loadDashboardData();
+    function addEmployee() {
+    const employeeSection = document.getElementById('employeeList');
+    employeeSection.innerHTML = `
+        <h3>Add New Employee</h3>
+        <form id="addEmployeeForm">
+            <label>Name:</label><br>
+            <input type="text" name="name" required><br><br>
+            <label>Email:</label><br>
+            <input type="email" name="email" required><br><br>
+            <label>Password:</label><br>
+            <input type="password" name="password" required><br><br>
+            <button type="submit">Add Employee</button>
+        </form>
+        <div id="addEmployeeMsg"></div>
+    `;
+
+    // Handle form submission
+    const form = document.getElementById('addEmployeeForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const data = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            password: formData.get('password')
+        };
+
+        fetch('/admin/add-employee', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            const msgDiv = document.getElementById('addEmployeeMsg');
+            msgDiv.textContent = result.message;
+            msgDiv.style.color = result.success ? 'green' : 'red';
+
+            if (result.success) form.reset(); // clear form on success
+            loadEmployeeList(); // refresh employee list if you have one
+        })
+        .catch(err => console.error("Error adding employee:", err));
+    });
+}
+    function loadEmployeeList() {
+    fetch('/admin/get-employees')
+        .then(res => res.json())
+        .then(employees => {
+            const list = document.getElementById('employeeList');
+            list.innerHTML = ''; // clear old list
+
+            employees.forEach(emp => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <p><strong>Name:</strong> ${emp.name}</p>
+                    <p><strong>Email:</strong> ${emp.email}</p>
+                    <button onclick="removeEmployee('${emp.email}')">Remove Employee</button>
+                    <hr>
+                `;
+                list.appendChild(div);
+            });
+        })
+        .catch(err => console.error(err));
+}
+
+// Remove employee function
+function removeEmployee(email) {
+    if (!confirm(`Are you sure you want to remove ${email}?`)) return;
+
+    fetch('/admin/remove-employee', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Employee removed successfully');
+            loadEmployeeList(); // refresh list
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+// Load employees on page load
+loadEmployeeList();
+
+</script>
+
+</body>
+</html>

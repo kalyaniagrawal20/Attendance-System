@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard | Attendance System</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            background-color: #333;
+            width: 200px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 60px;
+        }
+        nav a {
+            display: block;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            background-color: #575757;
+        }
+        main {
+            margin-left: 200px;
+            padding: 20px;
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Employee Dashboard</h1>
+</header>
+
+<nav>
+    <a href="#" onclick="showSection('dashboard')">Dashboard</a>
+    <a href="#" onclick="showSection('attendance')">Mark Attendance</a>
+    <a href="#" onclick="showSection('myProfile')">Profile</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<main>
+    <!-- Dashboard -->
+    <section id="dashboard" class="section">
+        <h2>Welcome, Employee</h2>
+        <p>Here you can mark your attendance and upload proof photo.</p>
+    </section>
+
+    <!-- Attendance Section -->
+    <section id="attendance" class="section" style="display:none;">
+        <h2>Mark Attendance</h2>
+        <form id="attendanceForm" enctype="multipart/form-data">
+            <label>Upload your photo as proof:</label>
+            <input type="file" id="photo" name="photo"  required>
+            <button type="submit">Check-In</button>
+        </form>
+        <p class="success" id="successMsg" style="color:green"></p>
+        <p class="error" id="errorMsg" style="color:red"></p>
+    </section>
+
+    <!-- Profile Section -->
+    <section id="myProfile" class="section" style="display:none;">
+        <h2>My Profile</h2>
+        <p>Name: John Doe</p>
+        <p>Email: employee@test.com</p>
+    </section>
+</main>
+
+
+<script>
+
+    // Navigation
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+        document.getElementById(sectionId).style.display = 'block';
+    }
+
+    function logout() {
+        alert('Logged out successfully');
+        window.location.href = '/login.html';
+    }
+
+    // Handle attendance form submission
+    document.getElementById('attendanceForm').addEventListener('submit', async function(e){
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append('photo', document.getElementById('photo').files[0]);
+
+        const res = await fetch('/employee/attendance', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await res.json();
+
+         if (data.success) {
+        document.getElementById('successMsg').innerHTML =
+            "Attendance Submitted!<br><img src='/uploads/" + data.filename + "' width='200' />";
+    } else {
+        document.getElementById('errorMsg').textContent = data.message;
+    }
+    });
+</script>
+
+</body>
+</html>
